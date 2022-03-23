@@ -18,7 +18,7 @@ class Operation(object):
     def __init__(self, row_raw_data=None) -> None:
 
         if row_raw_data:
-            self.ticker = self.ticker_from_raw_data(row_raw_data[0])
+            self.ticker_name = self.ticker_from_raw_data(row_raw_data[0])
             self.date = row_raw_data[self.DATE_COLUMN]
             self.quantity = int(float(row_raw_data[self.QTY_COLUMN]))
             self.ticker_price = float(row_raw_data[self.PRICE_COLUMN])
@@ -29,7 +29,7 @@ class Operation(object):
 
         else:
             self.date = None
-            self.ticker = None
+            self.ticker_name = None
             self.ticker_price = None
             self.quantity = None
             self.gross_amount = None
@@ -48,7 +48,7 @@ class Operation(object):
             raise ValueError('Tracker not compatible with list')
 
     def generate_operation_id(self):
-        return (self.ticker + str(self.date) + str(self.quantity) + 
+        return (self.ticker_name + str(self.date) + str(self.quantity) + 
                 str(self.gross_amount))
 
 
@@ -58,10 +58,20 @@ class Ticker(object):
     object
     """
 
-    def __init__(self, operation=None, ticker_name=None) -> None:
+    def __init__(self, ticker_name=None) -> None:
         self.name = ticker_name
+        self.number_of_shares = 0
+        self.position = 0
+
+    def add_shares(self, share_number):
+        self.number_of_shares += share_number
+
+class Portfolio(object):
+
+    def __init__(self, operations=None) -> None:
         self.value = None
         self.number_of_shares = 0
+        self.composition = {}
         self.gross_investment = 0
         self.net_investment = 0
         self.comissions = 0
@@ -69,59 +79,50 @@ class Ticker(object):
         self.gain = None
         self.operations = []
 
-        if operation:
-            self.name = operation.ticker
-            self.number_of_shares = operation.quantity
-            self.gross_investment = operation.gross_amount
-            self.net_investment = operation.net_amount
-            self.comissions = operation.comission
-            self.operations.append(operation)
-
-
-    # @property
-    # def name(self):
-    #     return self.name
-
-    # @name.setter
-    # def name(self, value):
-    #     self.name = value
-
-    # @property
-    # def operations(self):
-    #     return self.operations
-
-
-    def add_operation(self, operation: Operation):
-        self.operations.append(operation)
-        self.number_of_shares += operation.quantity
-        self.gross_investment += operation.gross_amount
-        self.net_investment += operation.net_amount
-        self.comissions += operation.comission
-
-class Portfolio(Ticker):
-
-    def __init__(self, operations=None) -> None:
-        super().__init__()
-
         self.ticker_data = {}
 
         if operations:
+            """
+            Initialize Porfolio instance from data of a .csv file
+            """
             # parse .csv and create ticker objects
             with open(operations, 'r', encoding='ISO-8859-1') as f:
                 for row in f.readlines()[1:]:
                     row_data = row.split(sep=';')
                     operation = Operation(row_data)
 
-                    ticker_name = operation.ticker
+                    ticker_name = operation.ticker_name
+
                     if ticker_name not in self.ticker_data.keys():
-                        # initalize ticker and store it in dict
-                        self.ticker_data[ticker_name] = Ticker(operation)
+                        self.ticker_data[ticker_name] = Ticker(operation.ticker_name)
+                    
+                    self.add_operation(operation)
 
-                    else:
-                        self.get_ticker(ticker_name).add_operation(operation)
 
-            self.update_portfolio()
+    def add_operation(self, operation: Operation): 
+        self.operations.append(operation)
+        self.number_of_shares += operation.quantity
+        self.gross_investment += operation.gross_amount
+        self.net_investment += operation.net_amount
+        self.comissions += operation.comission
 
+        self.ticker_data[operation.ticker_name].add_shares(operation.quantity)
+
+    def set_portfolio_value(self, value_summary=None):
+        # Fortuneo API to track portfolio value?
+        value_pe500 = 4338.906
+        value_pceu = 2467.5
+        value_paeem = 1632.92
+
+        self.value =  value_paeem + value_pceu + value_pe500
+
+        self.ticker_data[Operation.PE500].position = value_pe500
+        self.ticker_data[Operation.PCEEU].position = value_pceu
+        self.ticker_data[Operation.PAEEM].position = value_paeem
+
+        self.gain = self.value - self.net_investment
+        self.performance = 100 * self.gain / self.value
+        self.set_composition()
 
     def get_ticker(self, ticker_name) -> Ticker:
         try:
@@ -132,31 +133,67 @@ class Portfolio(Ticker):
     def ticker_names(self):
         return self.ticker_data.keys()
 
-    def update_net_investment(self):
-        for ticker_name in self.ticker_data.keys():
-            self.net_investment += self.get_ticker(ticker_name).net_investment
+    def set_composition(self) -> dict:
+        self.composition = {}
+        for ticker in self.ticker_data.values():
+            ticker_percentage = 100 * (ticker.position) / self.value
+            self.composition[ticker.name] = ticker_percentage
 
-    def update_portfolio(self):
-        for ticker_name in self.ticker_data.keys():
-            self.number_of_shares += self.get_ticker(ticker_name).net_investment
-            self.net_investment += self.get_ticker(ticker_name).net_investment
-            self.gross_investment += self.get_ticker(ticker_name).gross_investment
-            self.comissions += self.get_ticker(ticker_name).gross_investment
+    def estimate_composition(self, tickers: list, ticker_prices: list, 
+                            share_numbers: list, detailed_cost=True):
+
+        provisional_positions = {}
+        operation_cost = 0
+
+        for ticker, ticker_price, share_number in zip(tickers, ticker_prices,
+                                                    share_numbers):
+            try:
+                provisional_positions[ticker] = self.ticker_data[ticker].position + ticker_price * share_number
+            except KeyError:
+                provisional_positions[ticker] = ticker_price * share_number
+
+            operation_cost += ticker_price * share_number
+
+        for ticker in self.ticker_data.keys():
+            if ticker not in tickers:
+                provisional_positions[ticker] = self.ticker_data[ticker].position
+
+        provisional_composition = {}
+        provisional_value = self.value + operation_cost
+
+        for ticker, provisional_position in provisional_positions.items():
+            provisional_composition[ticker] = round(100 * provisional_position / provisional_value, 2)
+
+        pprint(provisional_composition)
+
+        if detailed_cost:
+            for ticker, ticker_price, share_number in zip(tickers, ticker_prices,
+                                                        share_numbers):
+                pprint('operation cost for {}: {}'.format(ticker,
+                                                          ticker_price * share_number))
+        pprint('total operation cost: {}'.format(operation_cost))
 
 
 if __name__ == '__main__':
     datafile_path = 'data/HistoriqueOperationsBourse_015207052916_du_01_01_2021_au_01_03_2022.csv'
     portfolio = Portfolio(datafile_path)
+    portfolio.set_portfolio_value()
 
-    print("net investment of portfolio: {}EUR".format(portfolio.net_investment))
+    tickers_to_buy = [Operation.PE500, Operation.PCEEU, Operation.PAEEM, 'BTC']
+    # API to track stock prices ?
+    ticker_prices = [30.37, 23.51, 20.32, 35188.06]
+    share_amounts = [16, 13, 10, 0.0085]
+    portfolio.estimate_composition(tickers_to_buy, ticker_prices, share_amounts)
+    pass
 
-    for ticker_name in portfolio.ticker_names():
-        ticker = portfolio.get_ticker(ticker_name)
-        print("net investment {}: {}EUR".format(ticker.name, ticker.net_investment))
-        # print("gross investment {}: {}EUR".format(portfolio.name, portfolio.gross_investment))
-        # print("comissions {}: {}EUR".format(portfolio.name, portfolio.comissions))
-        # print("number of shares {}: {}".format(portfolio.name, portfolio.number_of_shares))
+        # interactve session example:
+        # start python
+        # import the portfolio package
+        # load a portfolio file
 
+        # to create a porfolio file
+        # start package, import the portfolio package
+        # call Portfolio(csv_file)
 
         # ideally, what I would want to do is:
         # 1. load portfolio
