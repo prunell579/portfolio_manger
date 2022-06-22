@@ -78,8 +78,21 @@ class PortfolioTests(unittest.TestCase):
             if key == BTC:
                 self.assertEqual(0.1, value)
 
-    def add_to_existing_portfolio(self):
-        pass
+    def test_add_to_existing_portfolio(self):
+        portfolio = portfolio_builder.PorfolioBuilder().build(default_mode=True)
+        portfolio.add_ticker(PEA500, 1000, 50)
+
+        composition = portfolio.composition()
+
+        for key, value in composition.items():
+            if key == PEA500:
+                self.assertEqual(0.75, value)
+            if key == PCEU:
+                self.assertEqual(0.125, value)
+            if key == PAEEM:
+                self.assertEqual(0.075, value)
+            if key == BTC:
+                self.assertEqual(0.05, value)
 
 
 if __name__ == '__main__':
