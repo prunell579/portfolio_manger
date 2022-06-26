@@ -1,5 +1,10 @@
 import unittest
-import portfolio_builder
+
+import sys
+import os
+sys.path.append('/Users/mariocastillo/portfolio_tracker')
+import model.portfolio_builder as pf_builder
+
 
 """
 Given that I have
@@ -33,7 +38,7 @@ class PortfolioTests(unittest.TestCase):
         100 EUR of BTC
         """
 
-        portfolio = portfolio_builder.PorfolioBuilder().build(default_mode=True)
+        portfolio = pf_builder.PorfolioBuilder().build(default_mode=True)
 
         tickers = portfolio.tickers
 
@@ -64,7 +69,7 @@ class PortfolioTests(unittest.TestCase):
 
 
     def test_portfolio_composition(self):
-        portfolio = portfolio_builder.PorfolioBuilder().build(default_mode=True)
+        portfolio = pf_builder.PorfolioBuilder().build(default_mode=True)
 
         composition = portfolio.composition()
 
@@ -79,7 +84,7 @@ class PortfolioTests(unittest.TestCase):
                 self.assertEqual(0.1, value)
 
     def test_add_to_existing_portfolio(self):
-        portfolio = portfolio_builder.PorfolioBuilder().build(default_mode=True)
+        portfolio = pf_builder.PorfolioBuilder().build(default_mode=True)
         portfolio.add_ticker(PEA500, 1000, 50)
 
         composition = portfolio.composition()
@@ -94,6 +99,31 @@ class PortfolioTests(unittest.TestCase):
             if key == BTC:
                 self.assertEqual(0.05, value)
 
+
+    def test_portfolio_value(self):
+        portfolio = pf_builder.PorfolioBuilder().build(default_mode=True)
+
+        self.assertEqual(1000, portfolio.value())
+
+        portfolio.add_ticker(PEA500, 222, 10)
+        self.assertEqual(1222, portfolio.value())
+
+
+    def test_tracker_value(self):
+        portfolio = pf_builder.PorfolioBuilder().build(default_mode=True)
+
+        self.assertEqual(portfolio.tracker_value(PEA500), 500)
+        self.assertEqual(portfolio.tracker_value(PCEU), 250)
+        self.assertEqual(portfolio.tracker_value(PAEEM), 150)
+        self.assertEqual(portfolio.tracker_value(BTC), 100)
+
+        portfolio.add_ticker(PCEU, 222, 10)
+        self.assertEqual(portfolio.tracker_value(PCEU), 472)
+
+        with self.assertRaises(ValueError):
+            portfolio.tracker_value('dummy_tracker')
+
+    
 
 if __name__ == '__main__':
     unittest.main()

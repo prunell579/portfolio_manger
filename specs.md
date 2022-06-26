@@ -66,3 +66,21 @@ but its children classes can. This results in classes that are not cohesive, but
 
 
 
+
+#########
+Next steps: 
+
+I can now create a portfolio and load trackers into it, their value and the number of shares.
+
+The portfolio now can evolve to history keeping. 
+
+Proposed behavior:
+The current Portfolio must be a reflection of a history of operations. 
+
+
+
+
+Now, I need to interface it with the datafiles from Fortuneo. 
+
+I should create a separate module that takes in the .csv from fortuneo and 
+

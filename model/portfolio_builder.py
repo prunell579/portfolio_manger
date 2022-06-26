@@ -1,4 +1,4 @@
-import portfolio_tracker_model as pt
+from model import portfolio_tracker_model as pt
 
 PEA500 = 'PEA500'
 PCEU = 'PCEU'
