@@ -1,10 +1,12 @@
+from pprint import pprint
 import unittest
 
+import datetime
+
 import sys
-import os
 sys.path.append('/Users/mariocastillo/portfolio_tracker')
 import model.portfolio_builder as pf_builder
-
+import model.portfolio_tracker_model as pf_model
 
 """
 Given that I have
@@ -123,7 +125,37 @@ class PortfolioTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             portfolio.tracker_value('dummy_tracker')
 
-    
+    def test_add_operation(self):
+        portfolio = pf_builder.PorfolioBuilder().build(default_mode=True)
+
+        ticker_name = PAEEM
+        quantity = 25
+        gross_amount = 453.55
+        net_amount = 451.34
+        date = datetime.date(2022, 1, 27)
+
+        portfolio.add_operation(ticker_name, quantity, gross_amount, net_amount,
+                                date)
+
+        self.assertEqual(portfolio.value(), 1451.34)
+
+        operations = [pf_model.Operation(ticker_name, quantity, gross_amount, 
+                                        net_amount, date)]
+
+        self.assertEqual(len(operations), len(portfolio.operations))
+
+        self.assertEqual(operations[0].ticker_name, portfolio.operations[0].ticker_name)
+        self.assertEqual(operations[0].quantity, portfolio.operations[0].quantity)
+        self.assertEqual(operations[0].gross_amount, portfolio.operations[0].gross_amount)
+        self.assertEqual(operations[0].net_amount, portfolio.operations[0].net_amount)
+        self.assertEqual(operations[0].date, portfolio.operations[0].date)
+
+
+    def test_add_mulitple_operations(self):
+        portfolio = pf_builder.PorfolioBuilder().build()
+
+        # test status of portfolio
+
 
 if __name__ == '__main__':
     unittest.main()

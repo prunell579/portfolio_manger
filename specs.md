@@ -77,6 +77,17 @@ The portfolio now can evolve to history keeping.
 Proposed behavior:
 The current Portfolio must be a reflection of a history of operations. 
 
+Operation object:
+-ticker
+-quantity
+-gross_amount
+-net_amount
+-date
+-ID
+
+When adding an operation, the model should:
+-Update its tickers
+-Register the operation
 
 
 
@@ -84,3 +95,13 @@ Now, I need to interface it with the datafiles from Fortuneo.
 
 I should create a separate module that takes in the .csv from fortuneo and 
 
+
+I also need the simulator module, that's the thing that I use the most
+
+I guess that the Portfolio object should only be modified through adding and 
+removing operations. 
+
+
+dictoniary or list of operations?
+
+An operation only corresponds to a ticker

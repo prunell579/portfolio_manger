@@ -1,5 +1,6 @@
 
 
+import datetime
 from typing import List
 
 
@@ -20,13 +21,29 @@ class Ticker:
     def amount_eur(self, value_euros):
         self._amount_eur = value_euros
 
+class Operation:
+    def __init__(self, ticker_name, quantity, gross_amount, net_amount, 
+                date: datetime):
+        self.ticker_name = ticker_name
+        self.quantity = quantity
+        self.gross_amount = gross_amount
+        self.net_amount = net_amount
+        self.date = date
+        # self.id = self.generate_operation_id()
+
+
 class Portfolio:
     def __init__(self) -> None:
         self._tickers = []
+        self._operations = []
 
     @property
     def tickers(self) -> List[Ticker]:
         return self._tickers
+
+    @property
+    def operations(self) -> List[Operation]:
+        return self._operations
 
     def value(self) -> float:
         value = 0
@@ -46,7 +63,7 @@ class Portfolio:
                 return ticker
         raise ValueError('The {} ticker does not exist in the portfolio'.format(ticker_name))
 
-
+    # should be pvt
     def add_ticker(self, ticker_name, amount_euros, number_of_shares):
         if ticker_name in self.ticker_names():
             ticker = self.get_portfolio_ticker(ticker_name)
@@ -59,6 +76,18 @@ class Portfolio:
 
     def tracker_value(self, ticker_name:str ) -> float:
         return self.get_portfolio_ticker(ticker_name).amount_eur
+
+    def add_operation(self, ticker_name='', quantity=0, 
+                    gross_amount=0.0, net_amount=0.0, 
+                    date=datetime.date(2000, 1, 1),
+                    operation=None):
+
+        if not operation:
+            operation = Operation(ticker_name, quantity, gross_amount, net_amount,
+                                date)
+
+        self._operations.append(operation)
+        self.add_ticker(ticker_name, net_amount, quantity)
 
     def composition(self):
         portfolio_value = 0
@@ -77,5 +106,7 @@ class Portfolio:
         for ticker in self.tickers:
             print(summary_format.format(ticker.name, ticker.amount_eur,
                                         ticker.number_of_shares))
+
+
 
 
