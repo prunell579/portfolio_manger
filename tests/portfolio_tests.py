@@ -4,7 +4,8 @@ import unittest
 import datetime
 
 import sys
-sys.path.append('/Users/mariocastillo/portfolio_tracker')
+# sys.path.append('/Users/mariocastillo/portfolio_tracker')
+sys.path.append('/Users/marieljc/Documents/mco_temp')
 import model.portfolio_builder as pf_builder
 import model.portfolio_tracker_model as pf_model
 
