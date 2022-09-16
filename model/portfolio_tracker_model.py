@@ -60,9 +60,14 @@ class Operation:
 
 
 class Portfolio:
-    def __init__(self) -> None:
+    def __init__(self, operations=None):
         self._tickers = []
         self._operations = []
+
+        if operations:
+            for operation in operations:
+                self.add_operation(operation=operation)
+
 
     @property
     def tickers(self) -> List[Ticker]:
@@ -77,6 +82,24 @@ class Portfolio:
         for ticker in self.tickers:
             investment += ticker.investment
         return investment
+
+    def value(self) -> float:
+        value = 0
+        for ticker in self.tickers:
+            value += ticker.value
+        return value
+
+    def gain(self, mode='gain'):
+        # duplicated code!
+        if not self.value():
+            return 'NaN'
+
+        gain = self.value() - self.investment()
+        if mode == 'gain':
+            return gain
+        
+        if mode == 'perf':
+            return 1e2 * gain / self.investment()
 
     def ticker_names(self):
         names = []
@@ -173,12 +196,24 @@ class Portfolio:
             ticker_gain = self.ticker_gain(ticker.name)
             ticker_perf = self.ticker_gain(ticker.name, mode='perf')
             print(summary_format.format(ticker.name, ticker.value,
-                                        ticker.investment, 
+                                        '{:.2f}'.format(ticker.investment), 
                                         '{:.2f}'.format(ticker_perf),
                                         '{:.2f}'.format(ticker_gain),
                                         ticker.number_of_shares,
                                         '{:.2f}'.format(ticker_comp)))
 
+        print("-------------------------------------------------------------\n")
+        total_value = self.value()
+        total_investment = self.investment()
+        gain = self.gain()
+        perf = self.gain(mode='perf')
+        print(summary_format.format('TOTAL',
+                                    '{:.2f}'.format(self.value()),
+                                    '{:.2f}'.format(self.investment()),
+                                    '{:.2f}'.format(self.gain(mode='perf')),
+                                    '{:.2f}'.format(self.gain()),
+                                    '--',
+                                    '{:.2f}'.format(1)))
 
 
 

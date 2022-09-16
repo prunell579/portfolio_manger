@@ -2,8 +2,7 @@
 from datetime import date
 from pprint import pprint
 import sys
-# sys.path.append('/Users/mariocastillo/portfolio_tracker')
-sys.path.append('/Users/marieljc/Documents/mco_temp')
+sys.path.append('/Users/mariocastillo/portfolio_tracker')
 import model.portfolio_builder as pf_builder
 import model.portfolio_tracker_model as pf_model
 

@@ -11,7 +11,7 @@ GROSS_INVESTMENT = 8
 def extract_operations_from_csv(path_to_csv):
 
     operations = []
-    with open(path_to_csv) as datafile:
+    with open(path_to_csv, encoding='utf-8') as datafile:
         data_reader = csv.reader(datafile, delimiter=';')
         next(data_reader)
         for row in data_reader:
@@ -45,4 +45,3 @@ def alias_from_raw_ticker(raw_ticker_name):
         raise ValueError
 
     return alias
-             

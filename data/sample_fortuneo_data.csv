@@ -1,4 +1,4 @@
-libellé;Opération;Place;Date;Qté;Prix d'éxé;Montant brut;Courtage/Prélèvement;Montant net;Devise;
+libell;Opration;Place;Date;Qt;Prix d'x;Montant brut;Courtage/Prlvement;Montant net;Devise;
 AMUNDI ETF PEA MSCI EMERGING MARKETS UCITS ETF - EUR;Achat Comptant;Euronext Paris;17/02/2022;13.0;23.905;-310.77;-1.55;-312.32;EUR;
 AMUNDI ETF PEA MSCI EUROPE UCITS ETF - EUR;Achat Comptant;Euronext Paris;17/02/2022;15.0;25.375;-380.63;-1.9;-382.53;EUR;
 AMUNDI ETF PEA S&P 500 UCITS ETF - EUR;Achat Comptant;Euronext Paris;17/02/2022;22.0;31.275;-688.05;-3.44;-691.49;EUR;
