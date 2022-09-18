@@ -170,7 +170,7 @@ class Portfolio:
     def ticker_composition(self, ticker_name):
         portfolio_value = self.portfolio_investment()
         try:
-            return self.get_portfolio_ticker(ticker_name).investment / portfolio_value
+            return 1e2 * self.get_portfolio_ticker(ticker_name).investment / portfolio_value
         except:
             return 'NaN'
         
@@ -195,25 +195,22 @@ class Portfolio:
             ticker_comp = self.ticker_composition(ticker.name)
             ticker_gain = self.ticker_gain(ticker.name)
             ticker_perf = self.ticker_gain(ticker.name, mode='perf')
-            print(summary_format.format(ticker.name, ticker.value,
+            print(summary_format.format(ticker.name,
+                                        '{:.2f}'.format(ticker.value),
                                         '{:.2f}'.format(ticker.investment), 
-                                        '{:.2f}'.format(ticker_perf),
+                                        '{:.2f}%'.format(ticker_perf),
                                         '{:.2f}'.format(ticker_gain),
                                         ticker.number_of_shares,
-                                        '{:.2f}'.format(ticker_comp)))
+                                        '{:.2f}%'.format(ticker_comp)))
 
         print("-------------------------------------------------------------\n")
-        total_value = self.value()
-        total_investment = self.investment()
-        gain = self.gain()
-        perf = self.gain(mode='perf')
         print(summary_format.format('TOTAL',
                                     '{:.2f}'.format(self.value()),
                                     '{:.2f}'.format(self.investment()),
-                                    '{:.2f}'.format(self.gain(mode='perf')),
+                                    '{:.2f}%'.format(self.gain(mode='perf')),
                                     '{:.2f}'.format(self.gain()),
                                     '--',
-                                    '{:.2f}'.format(1)))
+                                    '{:.2f}%'.format(100)))
 
 
 

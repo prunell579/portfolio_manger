@@ -25,8 +25,8 @@ def extract_operations_from_csv(path_to_csv):
             ticker_name = alias_from_raw_ticker(ticker_name)
             operation_date = datetime.datetime.strptime(operation_date, '%d/%m/%Y')
             quantity = int(float(quantity))
-            net_investment = float(net_investment)
-            gross_investment = float(gross_investment)
+            net_investment = abs(float(net_investment))
+            gross_investment = abs(float(gross_investment))
 
             operations.append(Operation(ticker_name, quantity, gross_investment,
                                         net_investment, operation_date))

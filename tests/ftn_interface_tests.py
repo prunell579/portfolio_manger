@@ -3,9 +3,11 @@ import unittest
 import datetime
 import sys
 sys.path.append('/Users/mariocastillo/portfolio_tracker')
+import model.supported_tickers as st
 import model.portfolio_builder as pf_builder
 import model.portfolio_tracker_model as pf_model
 import interface.fortuneo_data_extractor as ftn_dataext
+import interface.stock_info_interface as stock_if
 
 class FtnInterfaceTests(unittest.TestCase):
     def test_parse_sample_ftn_file(self):
@@ -17,10 +19,11 @@ class FtnInterfaceTests(unittest.TestCase):
 
         pf = pf_model.Portfolio(operations=operations)
 
-        pf.set_ticker_value('PE500', 0.34)
-        pf.set_ticker_value('PCEU', 0.52)
-        pf.set_ticker_value('PAEEM', 0.53)
-        # pf.set_ticker_value('BTC', 120.90)
+        for ticker in pf.tickers:
+            # the stock price in a test should be fixed to validate it
+            value = ticker.number_of_shares * stock_if.stock_last_price(ticker.name)
+            pf.set_ticker_value(ticker.name, value)
+
         pf.summary()
 
         self.assertEqual(1, 1)

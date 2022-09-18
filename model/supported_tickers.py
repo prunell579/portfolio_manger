@@ -1,0 +1,3 @@
+PE500  = 'PE500'
+PCEU = 'PCEU'
+PAEEM = 'PAEEM'
