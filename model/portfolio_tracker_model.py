@@ -12,10 +12,7 @@ class Ticker:
         self.name = name
         self._investment = amount
         self.number_of_shares = number_of_shares
-        if not value:
-            self._value = amount
-        else:
-            self._value = value
+        self._value = float('nan')
 
     @property
     def investment(self):
@@ -60,10 +57,8 @@ class Operation:
         # self.id = self.generate_operation_id()
 
 
-
-
 class Portfolio:
-    def __init__(self, operations=None):
+    def __init__(self, operations=[]):
         self._tickers = []
         self._operations = []
 
@@ -95,7 +90,7 @@ class Portfolio:
     def gain(self, mode='gain'):
         # duplicated code!
         if not self.value():
-            return 'NaN'
+            return float('nan')
 
         gain = self.value() - self.investment()
         if mode == 'gain':
@@ -116,15 +111,14 @@ class Portfolio:
                 return ticker
         raise ValueError('The {} ticker does not exist in the portfolio'.format(ticker_name))
 
-    # should be pvt
-    def _update_or_add_ticker(self, ticker_name, amount_euros, number_of_shares):
+    def _update_or_add_ticker(self, ticker_name, net_amount_eur, number_of_shares):
         if ticker_name in self.ticker_names():
             ticker = self.get_portfolio_ticker(ticker_name)
-            ticker.investment += amount_euros
+            ticker.investment += net_amount_eur
             ticker.number_of_shares += number_of_shares
             return
 
-        ticker = Ticker(ticker_name, amount_euros, number_of_shares)
+        ticker = Ticker(ticker_name, net_amount_eur, number_of_shares)
         self._tickers.append(ticker)
 
     def set_ticker_investment(self, ticker_name: str, investment_value: float):
@@ -171,16 +165,15 @@ class Portfolio:
             try:
                 composition[ticker.name] = ticker.investment / portfolio_value
             except:
-                return 'NaN'
+                return float('nan')
 
         return composition
 
     def ticker_composition(self, ticker_name):
-        portfolio_value = self.portfolio_investment()
         try:
-            return 1e2 * self.get_portfolio_ticker(ticker_name).investment / portfolio_value
+            return 1e2 * self.ticker_value(ticker_name)/ self.value()
         except:
-            return 'NaN'
+            return 0
         
 
     # why can't I use the property? 

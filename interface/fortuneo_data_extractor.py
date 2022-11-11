@@ -5,13 +5,13 @@ from model.portfolio_tracker_model import Operation
 TICKER_NAME = 0
 OPERATION_DATE = 3
 QUANTITY = 4
-NET_INVESTMENT = 6
-GROSS_INVESTMENT = 8
+GROSS_INVESTMENT = 6
+NET_INVESTMENT = 8
 
 def extract_operations_from_csv(path_to_csv):
 
     operations = []
-    with open(path_to_csv, encoding='utf-8') as datafile:
+    with open(path_to_csv, encoding='ISO-8859-1') as datafile:
         data_reader = csv.reader(datafile, delimiter=';')
         next(data_reader)
         for row in data_reader:
@@ -42,6 +42,7 @@ def alias_from_raw_ticker(raw_ticker_name):
     elif raw_ticker_name == 'AMUNDI ETF PEA MSCI EMERGING MARKETS UCITS ETF - EUR':
         alias = 'PAEEM'
     else:
-        raise ValueError
+        error_string = 'alias for {} not defined'.format(raw_ticker_name)
+        raise ValueError(error_string)
 
     return alias
