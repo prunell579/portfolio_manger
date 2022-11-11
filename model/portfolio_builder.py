@@ -8,14 +8,17 @@ PAEEM = 'PAEEM'
 BTC = 'BTC'
 
 class PorfolioBuilder:
-    def build(self, default_mode = False) -> pt.Portfolio:
+    def build(self, default_mode = False, manual_mode = False) -> pt.Portfolio:
         portfolio = pt.Portfolio()
 
-        if default_mode:
-            portfolio.add_ticker(PEA500, 500, 20)
-            portfolio.add_ticker(PCEU, 250, 15)
-            portfolio.add_ticker(PAEEM, 150, 10)
-            portfolio.add_ticker(BTC, 100, 0.23)
+        if default_mode or manual_mode:
+            if default_mode:
+                operations = self.operation_generator()
+            if manual_mode:
+                operations = self.make_current_pf_by_hand()
+
+            for operation in operations:
+                    portfolio.add_operation(operation=operation)
 
         else:
             ticker_names = [PEA500, PCEU]
@@ -49,11 +52,17 @@ class PorfolioBuilder:
         pt.Operation('PCEU', 18, 500.45, 499.59, datetime.date(2022, 3, 19)),
         pt.Operation('PCEU', 19, 515.45, 514.34, datetime.date(2022, 4, 15)),
 
-        pt.Operation('PAAEM', 22, 320.32, 319.59, datetime.date(2022, 2, 23)),
-        pt.Operation('PAAEM', 18, 280.32, 278.59, datetime.date(2022, 3, 23)),
-        pt.Operation('PAAEM', 20, 260.32, 259.59, datetime.date(2022, 4, 23)),
+        pt.Operation('PAEEM', 22, 320.32, 319.59, datetime.date(2022, 2, 23)),
+        pt.Operation('PAEEM', 18, 280.32, 278.59, datetime.date(2022, 3, 23)),
+        pt.Operation('PAEEM', 20, 260.32, 259.59, datetime.date(2022, 4, 23)),
 
-        pt.Operation('BTC', 1, 100.32, 100.00, datetime.date(2022, 5, 10)),
-        pt.Operation('BTC', 1, 102.32, 101.59, datetime.date(2022, 5, 10))
+        # pt.Operation('BTC', 1, 100.32, 100.00, datetime.date(2022, 5, 10)),
+        # pt.Operation('BTC', 1, 102.32, 101.59, datetime.date(2022, 5, 10))
         ]
 
+    def make_current_pf_by_hand(self):
+        return [
+        pt.Operation('PE500', 230, 7236.03, 7236.03, datetime.date(2022, 2, 21)),
+        pt.Operation('PCEU', 171, 3961.215, 3961.215, datetime.date(2022, 2, 21)),
+        pt.Operation('PAEEM', 117, 2292.174, 2292.147, datetime.date(2022, 2, 23)),
+        ]

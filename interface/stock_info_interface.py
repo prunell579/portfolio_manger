@@ -18,10 +18,13 @@ def stock_close_price(ticker_name, date: dt.datetime):
 
     return data['Close'][0]
 
-def stock_last_price(ticker_name):
-    
-    ticker_name = yahoo_stock_ticker(ticker_name)
+def stock_last_prices(ticker_names: list):
+    stock_prices = {}
+    for ticker_name in ticker_names:
+        ticker_yahoo_name = yahoo_stock_ticker(ticker_name)
+        data =  yf.download(ticker_yahoo_name, period='1d')
+        stock_prices[ticker_name] = data['Close'][0]
+    return stock_prices
 
-    # on a weekday I think this will give me yesterday's price and todays'
-    data =  yf.download(ticker_name, period='1d')
-    return data['Close'][0]
+if __name__ == '__main__':
+    print(stock_last_prices([st.PE500]))
