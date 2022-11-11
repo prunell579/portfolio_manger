@@ -12,7 +12,10 @@ class Ticker:
         self.name = name
         self._investment = amount
         self.number_of_shares = number_of_shares
-        self._value = None
+        if not value:
+            self._value = amount
+        else:
+            self._value = value
 
     @property
     def investment(self):
@@ -114,7 +117,7 @@ class Portfolio:
         raise ValueError('The {} ticker does not exist in the portfolio'.format(ticker_name))
 
     # should be pvt
-    def add_ticker(self, ticker_name, amount_euros, number_of_shares):
+    def _update_or_add_ticker(self, ticker_name, amount_euros, number_of_shares):
         if ticker_name in self.ticker_names():
             ticker = self.get_portfolio_ticker(ticker_name)
             ticker.investment += amount_euros
@@ -130,11 +133,16 @@ class Portfolio:
     def ticker_investment(self, ticker_name:str ) -> float:
         return self.get_portfolio_ticker(ticker_name)._investment
 
-    def set_ticker_value(self, ticker_name, value):
+    def set_ticker_value(self, ticker_name, value: float):
         self.get_portfolio_ticker(ticker_name)._value = value
 
     def ticker_value(self, ticker_name: str):
         return self.get_portfolio_ticker(ticker_name).value
+
+    def set_ticker_values_from_prices(self, stock_prices: dict):
+        for ticker_name, stock_price in stock_prices.items():
+            ticker = self.get_portfolio_ticker(ticker_name)
+            self.set_ticker_value(ticker_name, ticker.number_of_shares * stock_price)
 
     def add_operation(self, ticker_name='', quantity=0, 
                     gross_amount=0.0, net_amount=0.0, 
@@ -153,7 +161,7 @@ class Portfolio:
                                 date)
 
         self._operations.append(operation)
-        self.add_ticker(ticker_name, net_amount, quantity)
+        self._update_or_add_ticker(ticker_name, net_amount, quantity)
 
     def composition(self):
         portfolio_value = self.portfolio_investment()
